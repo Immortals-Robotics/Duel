@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.6)
 project(immortalsDuel)
 
-#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include_directories (immortalsDuel)
+#include_directories ("${PROJECT_SOURCE_DIR}/immortalsDuel")
+add_subdirectory (libgamepad)
 #include(Findudev)
 #set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
@@ -24,13 +26,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #file(GLOB_RECURSE GEN_HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
 
-set(SOURCE_FILES main.cpp
-        ${GEN_LIBGAMEPAD_SOURCE_FILES})
+set(SOURCE_FILES main.cpp)
 
 add_executable(immortalsDuel ${SOURCE_FILES})
 target_link_libraries(immortalsDuel gamepad)
+add_dependencies(immortalsDuel gamepad)
 #target_link_libraries(immortalsDuel ${CMAKE_CURRENT_SOURCE_DIR}/libgamepad)
 #set(with-libraries "${CMAKE_CURRENT_SOURCE_DIR}/libgamepad/libgamepad.so")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CMAKE_CURRENT_SOURCE_DIR}/libgamepad")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CMAKE_CURRENT_SOURCE_DIR}/libgamepad")
 
 
