@@ -1,10 +1,13 @@
 #include <iostream>
 #include <unistd.h>
+#include <deque>
 
 #include "libgamepad/gamepad.h"
 #include "Source/GameSetting.h"
 #include "Source/WorldState.h"
 #include "Source/Output/Sender/Sender.h"
+
+#define BUFF_SIZE 10
 
 using namespace std;
 
@@ -12,6 +15,16 @@ using namespace std;
 GameSetting* gameSetting;
 WorldState* worldState;
 Sender* sender;
+
+deque <double> buff[4];
+
+double avg_vec(deque<double> _vec){
+    double sum = 0;
+    for(double elem:_vec){
+        sum += elem;
+    }
+    return sum/_vec.size();
+}
 
 static void update(GAMEPAD_DEVICE dev) {
     float lx, ly, lenL, rx, ry, lenR;
@@ -32,6 +45,11 @@ static void update(GAMEPAD_DEVICE dev) {
 
     GamepadStickNormXY(dev, STICK_LEFT, &lx, &ly);
     lenL = GamepadStickLength(dev, STICK_LEFT);
+    buff[dev].push_back(lenL);
+    if(buff[dev].size() > BUFF_SIZE){
+        buff[dev].pop_front();
+    }
+    lenL = avg_vec(buff[dev]);
     lx *= lenL;
     ly *= lenL;
     GamepadStickNormXY(dev, STICK_RIGHT, &rx, &ry);
@@ -42,8 +60,8 @@ static void update(GAMEPAD_DEVICE dev) {
 
 
     worldState->ownRobot[dev].halt(false);
-    worldState->ownRobot[dev].moveBySpeed(Vec2(rx,ry) * maxSpeed);
-    worldState->ownRobot[dev].orientateAng(lx * maxAngSpeed);
+    worldState->ownRobot[dev].moveBySpeed(Vec2(ly,-lx) * maxSpeed);
+    worldState->ownRobot[dev].orientateAng(-rx * maxAngSpeed);
     worldState->ownRobot[dev].set_direct(GamepadTriggerLength(dev, TRIGGER_RIGHT) * 50);
     worldState->ownRobot[dev].set_chip(GamepadTriggerLength(dev, TRIGGER_LEFT) * 50);
 
@@ -84,25 +102,30 @@ int main() {
 
     gameSetting = new GameSetting();
 
-    gameSetting->commandSleep = 5*1000;
+    gameSetting->commandSleep = 20*1000;
 
     gameSetting->remote[0].enabled = true;
-    gameSetting->remote[0].robotID = 0;
-    gameSetting->remote[0].maxSpeed = 100;
-    gameSetting->remote[0].maxAngSpeed = 10;
+    gameSetting->remote[0].robotID = 5;
+    gameSetting->remote[0].maxSpeed = 30;
+    gameSetting->remote[0].maxAngSpeed = 20;
     gameSetting->remote[0].enableDirect = true;
     gameSetting->remote[0].enableChip = true;
 
     gameSetting->remote[1].enabled = true;
-    gameSetting->remote[1].robotID = 7;
-    gameSetting->remote[1].maxSpeed = 100;
-    gameSetting->remote[1].maxAngSpeed = 10;
+    gameSetting->remote[1].robotID = 4;
+    gameSetting->remote[1].maxSpeed = 30;
+    gameSetting->remote[1].maxAngSpeed = 20;
     gameSetting->remote[1].enableDirect = true;
     gameSetting->remote[1].enableChip = true;
 
-    gameSetting->remote[2].enabled = true;
+    gameSetting->remote[2].enabled = false;
+    gameSetting->remote[2].robotID = 4;
+    gameSetting->remote[2].maxSpeed = 30;
+    gameSetting->remote[2].maxAngSpeed = 20;
+    gameSetting->remote[2].enableDirect = true;
+    gameSetting->remote[2].enableChip = true;
 
-    gameSetting->remote[3].enabled = true;
+    gameSetting->remote[3].enabled = false;
 
     gameSetting->sender_UDP_Address = "224.5.92.5";
     gameSetting->senderPort = 60005;
