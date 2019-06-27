@@ -8,7 +8,7 @@ Due to the limits of the XBox360 wireless receiver, maximum 4 controllers can na
 ## requirements
 Install the requirements by issuing the below command:
 ```
-sudo apt-get install cmake g++ git libgtkmm-2.4-dev libprotobuf-dev protobuf-compiler libncurses5-dev 
+sudo apt-get install cmake g++ git libgtkmm-2.4-dev libprotobuf-dev protobuf-compiler libncurses5-dev libudev-dev
 
 ```
 
